@@ -1,0 +1,141 @@
+Practical machine learning notes - Week 1
+
+Concepts covered this week:
+
+-- 1
+What is machine learning?
+Netflix prize
+Kaggle and data science competitions
+The Elements of Statistical Learning, Introduction to Statistical Learning
+Machine Learning course by Andrew Ng
+The caret package in R
+-- 2
+Google Flu Trends
+The general process of doing machine learning
+Defining machine learning questions
+Practical: Building a simple thresholded classifier for distinguishing spam and not-spam emails
+-- 3
+The relative importance of steps in the machine learning process
+“Garbage in, garbage out”
+Automatic feature discovery
+Choosing ML algorithms
+Scalability, interpretability and implementation concerns vs. performance
+-- 4
+Resubstitution error
+Generalisation error
+Overfitting
+Signal and noise in datasets
+Practical: demonstration of the different between in sample and out of sample errors on spam dataset
+-- 5
+Defining training sets, test sets, validation sets
+Comparing model performance to simple benchmarks
+-- 6
+True positives, false positives, true negatives, false negatives
+Sensitivity and specificity
+Mean squared error (MSE), root mean squared error (RMSE)
+Median absolute deviation
+-- 7
+ROC curves
+AUC scores
+Optimal ROC scores and the meaning of an AUC score of 0.5
+-- 8
+Cross-validation (CV)
+Random subsampling CV
+K-fold CV
+Bias and variance tradeoff in choice of k in k-fold CV
+Leave one out CV
+-- 9
+Guidelines for choosing input data for ML
+
+
+1. Prediction motivation
+
+In this course, we’ll cover the main techniques and practicalities of doing machine learning (ML) on real examples. Implementation will be with the caret package in R. Other Coursera classes like those in the Data Scientist’s Toolbox are complementary to this course.
+
+Who uses machine learning and prediction? Lots of people, including everyone from tech companies (like Netflix, who predicts what movies you might like to watch) to insurance companies (who predict what your risk of death is). Prediction can be quite useful in healthcare, e.g. predicting outcome in breast cancer patients from gene signatures. There are now also lots of data science competitions, e.g. the $1m Netflix prize for improving its movie prediction algorithm. Kaggle organizes many different prediction competitions. 
+
+The Elements of Statistical Learning is a good book that is recommended. The “Machine Learning” Coursera class by Andrew Ng is also excellent (the data science society might study it next term!). 
+
+(Note - my experience is that the Elements of Stat Learning book is quite heavy-going and rather mathematical –  if you haven’t spent years studying maths or if you’d just like a somewhat gentler introduction, I would recommend “Introduction to Statistical Learning”. It is by the same authors and was written precisely to make machine learning and stats theory more widely accessible.)
+
+The R package caret is a nice package that integrates a lot of different tools related to machine learning, and we’ll be using it throughout the course. 
+
+2. What is prediction?
+
+Broad overview of prediction: We build some sort of prediction function that uses characteristics of samples to predict what category they fall into. (Note that this refers to a classification task, and another huge area of ML is regression problems, where you try to predict continuous outcomes).
+
+Google Flu Trends tried to predict flu epidemics based on what terms people were searching for online. It performed well, however the algorithm was not well adapted to the nuances of people’s usage of search terms, leading to highly inaccurate results. This gives an idea that choosing the right dataset and defining the question are highly important for getting accurate predictions out. 
+
+In ML, we must start with a well defined question that can be answered with data. Then we have to gather appropriate input data, and from that data we identify the features that we would like to use to predict the output. We choose an appropriate ML algorithm, estimate the parameters of the algorithm, and apply the algorithm on new data.
+
+An example: can we use characteristics of emails to classify them into spam emails and not-spam? To build a predictive frequency, we need to get quantitative features out the emails. For example, we can get frequencies of words for many spam and non-spam (“ham”) emails. We could create a threshold on the frequency of the word “your” to try to differentiate between spam and ham emails (see code). 
+
+3. Relative importance of steps
+
+The steps of doing ML include defining a question, finding data, getting features and applying an algorithm. The most important part is defining a good question and collecting the data. Often, the algorithm is the least important component. 
+
+The question: it is important to emphasize the centrality of generating a well-defined question. Also, an important component of doing prediction is knowing when to give up – sometimes, you just don’t have the data to answer the question you want to address. 
+
+Input data: “Garbage in, garbage out”. If you have bad data, no matter how good your algorithm is, the result still won’t be great. The best results will come from when your training data is basically the same as what you’re trying to predict (e.g. Netflix prize was trying to predict future movie ratings based on old movie ratings, which are very similar phenomena).  Acquiring better data is a foolproof way of doing better prediction. 
+
+Features: features should be informative, relevant and may be created using specialist domain knowledge. Trying to automate feature selection can be successful but can also lead to issues, for example if you fail to notice some quirk of the dataset. There is a body of research on automatic feature discovery (e.g. there is an algorithm that automatically identified features that were predictive of whether there were cats or humans in a YouTube video). 
+
+Algorithms: the specific choice of ML algorithm matters less than you might think. E.g. one analysis compared the performance of a basic algorithm (a linear discriminant analysis predictor) against the best possible method on that dataset and did not find a massive difference in predictive performance. Often times, using a sensible, basic method will get you a massive part of the way there. 
+
+The choice of algorithm should also be influenced by interpretability and simplicity, because you’ll probably have to explain it to non-technically minded people. Scalability and speed are also concerns that fall outside of just the model’s predictive performance. Prediction is often about tradeoffs between e.g. interpretability versus accuracy, or speed versus accuracy. The winning solution of the Netflix £1m prize was actually never implemented in production because the final algorithm was not scalable - it was a blend of many ML algorithms and took a long time to compute. Netflix went with an algorithm that was less accurate but was more scalable and implementable. 
+
+4. In and out of sample errors
+
+This concept is really central to ML. In sample errors (resubstitution error) are the errors that you get on the same data as you used to build your predictor. This estimate of error is optimistic, because the predictor will tune itself to the noise in that particular data set (overfitting). The out of sample error rate (generalization error) is more informative because it is a more realistic estimate of how the predictor will perform on new data. 
+
+See code for a demonstration in the difference between in sample and out sample errors. We find that the simplified predictor does a better job of predicting spam emails when applied to the larger dataset. The goal of a predictor in general is to capture the signal in a dataset and not overfit to the noise. If you tune the predictor too tightly to a dataset, it will not perform as well on a new dataset. 
+
+5. Prediction study design
+
+The first thing to do is to define your error rates. We then split our data into training and testing sets (and potentially a validation set). We then use the training set to pick features (using cross validation, to be discussed). We then apply the best model just once to the test set. If there is a validation and test set, then there is more scope to refine your model. 
+
+Data science competitions often give benchmarks which help you figure out if your predictive algorithm is e.g. going way better or way worse than expected. They may also have different test sets to allow teams to gauge their performance (a “quiz set”). But eventually, final model performance has to be tested on a completely previously unseen data set. 
+
+When splitting data sets, you need to avoid small sample sizes. Say you’re trying to predict who is diseased or healthy, or if a web customer clicks or doesn’t click on an add. One possible classifier is just flipping a coin. If your data set sample size n=1, then even with just this coin you have a 50% chance of 100% accuracy. So it is important to ensure that our test set sizes are large enough to be meaningful. Certain proportions of splits are popular, such as 60% training, 20% test, 20% validation. If you have a small sample size, maybe reconsider if you have enough data to proceed, but another option is to do cross validation and state the caveat that the model has never been run on new data.
+
+In general, train and test sets are randomly allocated. If your data set has a specific structure, like if it is a time series, then you want to sample times in chunks. All subsets should reflect as much diversity as possible, which is done by random assignment, but there are times when you may want to balance features. So for example, if 10% of the people in your dataset are diseased, you may want to make sure that both the train and test sets have ~10% people as diseased.
+
+6. Types of errors
+
+There are several common ways of quantifying the error of an ML algorithm. As an example, let’s take binary classification algorithms that identify instances as either positive or negative. For example, let’s pretend we have a medical test that tries to predict if a person is ill or not (e.g. infected by some disease).  In this case, let’s take “classifying an instance as positive” to mean “labeling a patient as being ill”, and “classifying an instance as negative” to mean “labeling a patient as not sick, i.e. healthy”. 
+
+So, these are the types of prediction we can make: true positives, false positives, true negatives, and false negatives. In this scenario, the words “true” and “false” refer to the actual true classification. For example, true positive means that the algorithm identifies the case as “positive” (the person is ill) and it really is a positive case (they really are all). However, if the test or algorithm labels a case as “negative” (the person is not ill) but they actually are, then this is a false negative result. Similarly, if the person is not ill but the algorithm identifies them as being ill, this is a false positive result, etc.
+
+Sensitivity and specificity are related terms that quantify how well the algorithm or test identifies positives cases, and what proportion of the cases it thinks are positives actually are (see lecture slides for the precise definition). The positive predictive value is the probability that you are diseased given that we call you diseased. The negative predictive value is the probability that are not diseased given that we call you not diseased. 
+
+There is a classic, counter-intuitive screening test example (note, it makes it clearer if you calculate cases like this using Bayes Rule).  See lecture slides.
+
+Measures of error for continuous data include mean squared error (MSE), which is the average error squared (where error is the predicted y values minus the actual y values). Another error measure is root squared mean error (RMSE), which is just the square root of the above (to cancel out the square term). These error terms are a bit sensitive to outliers. Another option is median absolute deviation, which is more robust to outliers. 
+
+You can choose which measure of error is most useful for your specific case, e.g. sensitivity might be more important than specificity if it’s really quite important that you detect all positive cases (and you don’t care as much about if you wrongly identify someone as a positive case if they are not). For example, this could be the case if you are designing a test to detect cancer or HIV. 
+
+7. Receiver Operator Characteristics
+
+Most predictions are quantitative (e.g. are probabilities) rather than just outputting a blanket prediction. Often, we must choose cutoffs on these quantitative values to assign final classifications. ROC (receiver operator characteristic) curves plot all different combinations of sensitivity and specificity of a classifier as a curve. The curve tells you about the tradeoffs you would be making when choosing specific thresholds for your predictive model. One way of quantifying how good the predictor as a whole is to calculate the area underneath the ROC curve. Better predictors will have better AUC (area under curve) values.  This is a good way of quantifying the performance of a binary classifier that outputs quantitative scores (note: you can still do ROC curve analysis if you have at least the rankings of the predictions). 
+
+An AUC score of 0.5, corresponding to a diagonal 45 degree line, is equivalent to a random classifier that just basically flips a coin when assigning the class. A perfect classifier jumps straight up to perfect sensitivity at very low false positive (i.e. high specificity) rates, which corresponds to a classifier that identifies all positive cases without misclassifying anything. 
+
+8. Cross validation
+
+Cross validation (CV) is one of the most widely used methods for choosing features and optimizing parameters. The key idea here is that resubstitution error is an optimistic estimate of how well the predictive algorithm is doing. A better estimate comes from an independent dataset. But as we’re building our model, we often have to make a lot of decisions, like which algorithm to use and what parameter values it should take. How can we decide which of these choices is best? We can’t use the test set to gauge performance of different versions of the model, otherwise it basically becomes part of our training set. One way to build our model and compare different versions of it is to use cross-validation, where we repeatedly split the training set itself into a training and test set and get estimates of model performance from those splits.
+
+One way to do cross-validation is by random subsampling, in which some samples in the training data are assigned into a new ‘test’ set. We do this over and over again and apply the same model to different splits, and average errors to get an estimate of the performance of that model. Random sampling must be done without replacement, so we are basically just subsampling our datasets here. We break up the training set up even further into small samples. Bootstrap sampling (which is random sampling of a dataset but with replacement) tends to underestimate the error since it duplicates some data points. 
+
+K-fold cross validation is another form of CV, and it splits the dataset into k sections. Say if k=3, we split the training set into 3 sections. Larger choices of k give a very accurate estimate of the bias between predicted values and true values, but the variance will be high. For very small k, say 2 fold cross validation, we won’t get as good of an estimate of the out of sample error rate (i.e. we’ll get more bias) but variance will be fairly low (e.g. if we were to regenerate new training data from the same population, the results aren’t likely to change). 
+
+(Note: this concept could have been explained better in the lectures. Prediction errors can be classed into errors due to bias, and errors due to variance. Bias is just how far off your model’s predictions are from the true values. The error due to variance is the variability of your model’s prediction for a specific data point. A really, really useful and well-executed blog post explaining the bias-variance tradeoff is here and I highly recommend it: http://scott.fortmann-roe.com/docs/BiasVariance.html)
+
+Another common approach to cross validation is leave one out cross validation. We leave one sample out and evaluate the model on that one sample. We do this iteratively for every single sample in the dataset and then average the accuracy. 
+
+9. What data should you use?
+
+The choice of data in ML is quite important. The FiveThirtyEight blog (Nate Silver) predicted U.S. election outcome state by state, and was very successful at predicting the outcome of the 2008 and 2012 elections. Why was it so successful? It used data from Gallup polls, so basically they used data that was the same question people were going to be asked on voting day, which is “who are you going to vote for?”. This input data is incredibly close to what they were trying to predict, which is something to aim for in ML. Further, Silver took the data and realized some polls were biased in one way or the other, and he weighted the polls based on how close they are to unbiased. This type of understanding of the inherent biases in the data is also crucial to doing ML well.
+
+It’s important to use data that’s as close to what you’re trying to predict as possible. The Moneyball story, now a movie, is about using data on baseball player performance to predict future player performance. In the Netflix prize, they tried to predict future movie preferences based on past movie preference. In the Heritage Health prize, they used data on which people have been hospitalised to predict which people would be hospitalized in the future. The more closely relevant you can get the input data to be, the better your predictions are likely to be. Looser connections tend to make prediction more difficult. 
+
+Machine learning should not be thought of as black boxes that crank answers out – the data input is incredibly important to understand and get right. E.g. plotting the number of Nobel Prizes against chocolate consumption gives a fairly good linear relationship, but is obviously a misleading analysis to present. It is important to understand why your prediction algorithm works or doesn’t work. 
