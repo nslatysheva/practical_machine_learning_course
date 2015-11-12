@@ -51,6 +51,7 @@ Fitting multivariate regression
 Diagnostics plots of residuals
 
 
+
 1. Caret package
 
 The caret package offers a unifying framework for doing machine learning in R. There are preprocessing (cleaning) functions, data splitting functions, training and testing functions, and a facility for model comparison (e.g. outputting confusion matrices that break down classification algorithm results). 
@@ -59,13 +60,16 @@ There is support for quite a few different ML algorithms, like linear discrimina
 
 See the corresponding R code for a demonstration of a basic use of caret (splitting data into train and test and running a glm).
 
+
 2. Data slicing
 
 Data slicing is used for building the training and test sets, or for performing cross validation or bootstrapping within the training set to evaluate your models. This lecture is mostly a practical demonstration, see the R code.
 
+
 3. Training options
 
 Brief lecture on the training control options when training models in the caret package. Another practical lecture, see code.
+
 
 4. Plotting predictors
 
@@ -74,6 +78,7 @@ It’s important to understand how the data looks and how it interacts with each
 Plots should be made only on the training set! Test set should not be used for exploration. 
 
 Things we are looking for at this stage: imbalances in predictors (e.g. if a categorical variable is 99.5% one group, might not be very informative as a predictor), outliers or weird groups that might suggest there is some variable you’re missing, groups of points not explained by any predictor, skewed variables. 
+
 
 5. Basic preprocessing
 
@@ -84,6 +89,7 @@ The crucial thing about preprocessing is that training and test sets must be pro
 Test set transformations are probably going to be imperfect, especially if they are collected at different times.
 
 Be careful when transforming factor variables.
+
 
 6. Covariate creation
 
@@ -101,6 +107,7 @@ The next stage is tidying up covariates into new, more useful covariates. This s
 
 Feature building should only be done on the training set, without looking at the test set, otherwise the looming danger is that we’ll overfit. The best approach to building features is just making plots and tables to see how the different variables relate to each other and what might be important.  Basically: create new features if you think they will improve the model fit, use exploratory analysis for finding what such features might be, but be careful about overffiting! 
 
+
 7. Preprocessing with principal components analysis
 
 We often have multiple quantitative variables, but they can be highly correlated with each other. In this case, we might not need every predictor - a weighted combination of predictors might be better. The idea is to pick the combination to capture the most information possible. In doing this, we are reducing the number of predictors and because we’re averaging variables, we’re actually reducing noise as well. 
@@ -111,6 +118,7 @@ There are two related solutions that are very similar. Singular value decomposit
 
 The difficulty with PCA is that it is quite hard to interpret the resulting simplified variables, because each one can be a very complex weighted combination of many variables. It is also sensitive to outliers, which must be caught in advance through exploratory data analysis. 
 
+
 8. Predicting with Regression
 
 The idea of regression is to fit a straight line to a set of data. It is quite a simple model in this sense, but regression is useful to do when just a straight line is a sufficiently accurate model of the data. The upsides of regression is that it is easy to implement and easy to interpret, but you’ll get poor performance if you try to do regression in non-linear settings since you’ll often miss important features of the data. In the practical of this lecture, we’ll look at geyser eruption data (the Old Faithful geyser, specifically).
@@ -118,6 +126,7 @@ The idea of regression is to fit a straight line to a set of data. It is quite a
 Concepts covered in the practical: fitting linear models, plotting lines through scatter plots, linear regression, differences in RMSE between train and test sets, prediction intervals.
 
 LM can be done with multiple variables, and is often is useful in combination with other models (we’ll cover model blending later).  
+
 
 9. Predicting with multivariate regression 
 
