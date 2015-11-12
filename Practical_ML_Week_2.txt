@@ -1,0 +1,126 @@
+Practical machine learning notes - Week 2
+
+Concepts covered this week:
+
+-- 1: caret package in R
+createDataPartition
+train
+predict
+
+-- 2: Data slicing
+createFolds
+createR	esample
+createTimeSlices
+
+-- 3: Training options
+args(train.default)
+args(trainControl)
+set.seed()
+
+-- 4: Plotting predictors
+ggplot2 package
+featurePlot
+qplot
+cut2 method from Hmisc package
+geom=”boxplot”
+geom=”jitter”
+
+-- 5: Preprocessing
+Standardising variables
+Centering and scaling
+Box Cox transformations
+kNN missing data imputation
+
+-- 6: Covariation creation
+Summarization versus information loss
+A/B testing
+Automatic feature generation (voice data, image data, etc.)
+
+-- 7: Preprocessing with PCA
+Correlation between predictor variables
+Singular value decomposition
+Principal components analysis
+
+-- 8: Predicting with regression
+Fitting and plotting linear models
+RMSE differences between training and testing
+Prediction intervals
+
+-- 9: Predicting with multivariate regression
+Fitting multivariate regression
+Diagnostics plots of residuals
+
+
+1. Caret package
+
+The caret package offers a unifying framework for doing machine learning in R. There are preprocessing (cleaning) functions, data splitting functions, training and testing functions, and a facility for model comparison (e.g. outputting confusion matrices that break down classification algorithm results). 
+
+There is support for quite a few different ML algorithms, like linear discriminant analysis (LDA), regression, Naïve Bayes, support vector machines, trees, forests, boosting, etc. The advantage of using caret is that you don’t have to go through and use a lot of different packages, many algorithms are available from the same place (the train function). It allows you to predict in a wide variety of ways using just one function.
+
+See the corresponding R code for a demonstration of a basic use of caret (splitting data into train and test and running a glm).
+
+2. Data slicing
+
+Data slicing is used for building the training and test sets, or for performing cross validation or bootstrapping within the training set to evaluate your models. This lecture is mostly a practical demonstration, see the R code.
+
+3. Training options
+
+Brief lecture on the training control options when training models in the caret package. Another practical lecture, see code.
+
+4. Plotting predictors
+
+It’s important to understand how the data looks and how it interacts with each other. We’ll be using wages data from the ISLR package. Practical, see code.
+
+Plots should be made only on the training set! Test set should not be used for exploration. 
+
+Things we are looking for at this stage: imbalances in predictors (e.g. if a categorical variable is 99.5% one group, might not be very informative as a predictor), outliers or weird groups that might suggest there is some variable you’re missing, groups of points not explained by any predictor, skewed variables. 
+
+5. Basic preprocessing
+
+We previously saw that plotting variables is important, since we’d like to find out if there is any weirdness to the data (e.g. outliers, groups of points that seem to not be explained by anything, etc.). Sometimes data preprocessing is important, like if we require some sort of transformation of the data.
+
+The crucial thing about preprocessing is that training and test sets must be processed in the same way. So if you’re centering and scaling your training set, the same has to be done to the test set, but using the means and standard deviations from the training set!
+
+Test set transformations are probably going to be imperfect, especially if they are collected at different times.
+
+Be careful when transforming factor variables.
+
+6. Covariate creation
+
+There are two levels to covariate creation: the first is taking raw data and turning it in to data you can actually use. We have to summarise the information in the data, in a sense compressing it, and turn it into something ML algorithms can use. For example, if we are studying the content of emails to classify them as spam or non-spam, we cannot just plug the raw email text itself into a predictive algorithm since most are not designed to work on free text. We must first create features, or variables that describe the raw data. For example, we might calculate the percentage of capital letters, the number of times “you” occurs, or the number of dollar signs. 
+
+Once we have this, the next stage is transforming the variables into more useful variables. For example, the percentage of capital letters squared might for some reason be a more valuable predictor.
+
+In generating features, the key concept is summarization versus information loss. We do not want to include every possible variable, instead we’d like to throw out information that isn’t useful. We have to think carefully about picking features that explain well what is happening in the raw data -  we must generate features that summarise the content of the data without being overly verbose.
+
+In text files, we could be interested in extracting word frequency, phrase frequency, or capital letter frequency. In voice data, we might extract features relating to pitch or timbre. In the case of images, we might want variables that identify faces, edges, corners, blobs, or ridges. In webpages, the number and type of images, the position of elements, colors, etc. could be informative. Such information is used in A/B testing, which tests which versions of web pages are more successfully in getting people’s attention and money. It’s best to err on the side of generating more features. 
+
+Automatic feature generation does exist, but we must be careful with using it, since often times a feature can be very useful in the training set but not so useful in testing. Googling “feature extraction for X”, where x=images, voice data, etc. will be helpful for analyzing your dataset. You’re looking for features that will help differentiate between samples. In some applications (images, voice), automatic feature creation is possible and sometimes necessary. 
+
+The next stage is tidying up covariates into new, more useful covariates. This step is more important for some methods than others. For example, we have to make sure to have properly cleaned and transformed data for algorithms like regression and SVMs, but not so much for others like classification trees that don’t mind so much if the data looks a certain way. 
+
+Feature building should only be done on the training set, without looking at the test set, otherwise the looming danger is that we’ll overfit. The best approach to building features is just making plots and tables to see how the different variables relate to each other and what might be important.  Basically: create new features if you think they will improve the model fit, use exploratory analysis for finding what such features might be, but be careful about overffiting! 
+
+7. Preprocessing with principal components analysis
+
+We often have multiple quantitative variables, but they can be highly correlated with each other. In this case, we might not need every predictor - a weighted combination of predictors might be better. The idea is to pick the combination to capture the most information possible. In doing this, we are reducing the number of predictors and because we’re averaging variables, we’re actually reducing noise as well. 
+
+We try to find a new set of variables that are uncorrelated and meanwhile, try to explain as much variance as possible. How can we use fewer variables to try to explain almost everything that is going on?
+
+There are two related solutions that are very similar. Singular value decomposition decomposes the data into 3 different matrices. Principal components analysis is quite similar, and is equivalent to the right singular vectors of LDA if scaled appropriately. 
+
+The difficulty with PCA is that it is quite hard to interpret the resulting simplified variables, because each one can be a very complex weighted combination of many variables. It is also sensitive to outliers, which must be caught in advance through exploratory data analysis. 
+
+8. Predicting with Regression
+
+The idea of regression is to fit a straight line to a set of data. It is quite a simple model in this sense, but regression is useful to do when just a straight line is a sufficiently accurate model of the data. The upsides of regression is that it is easy to implement and easy to interpret, but you’ll get poor performance if you try to do regression in non-linear settings since you’ll often miss important features of the data. In the practical of this lecture, we’ll look at geyser eruption data (the Old Faithful geyser, specifically).
+
+Concepts covered in the practical: fitting linear models, plotting lines through scatter plots, linear regression, differences in RMSE between train and test sets, prediction intervals.
+
+LM can be done with multiple variables, and is often is useful in combination with other models (we’ll cover model blending later).  
+
+9. Predicting with multivariate regression 
+
+We can predict using multiple covariates. We’ll again be using the wages data to predict wages of a group of men, and explore the dataset to find out which predictors are the most important to include in the model. 
+
+Concepts covered in the practical: 	running the multivariate regression, diagnostics plots of residuals (residuals versus fitted values, residuals over indices of rows, etc.)
