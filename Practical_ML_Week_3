@@ -1,0 +1,83 @@
+Practical machine learning notes - Week 3
+
+Concepts covered this week:
+
+-- 1: Predicting with trees
+Classification trees
+Group homogeneity
+Pruning
+Misclassification error
+Gini index
+Deviance/information gain
+modFit <- train(Species ~ ., method="rpart", data=training)
+rattle library in R
+
+-- 2: Bagging
+Bootstrap aggregating
+Loess curves
+Custom bagging with caret
+
+-- 3: Random forests
+Bagging for classification trees
+Explanation of rf algorithm
+
+-- 4: Boosting
+Adaboost
+Gradient boosting
+
+-- 5: Model based prediction
+Probabilistic models of data distributions
+Linear discriminant analysis
+Naïve Bayes
+Decision boundaries
+
+
+1. Predicting with trees
+
+The idea behind trees is if you have a lot of variables you want to use to predict an outcome, you can use those variables and variable values to split the outcome into different groups. As you split the data into different groups, you can evaluate the homogeneity of the outcome in each split subgroup. You can continue to split the dataset based on variable values until you get outcomes that are homogenous enough, or alternatively, until the groups are small enough that you must stop. 
+
+The pros of the tree approach are its easy interpretability, and improved performance in non-linear settings. But, without pruning or cross-validation, this  approach can lead to overfitting. It is also harder to estimate uncertainty than in linear regression, and the prediction results can be fairly variable.
+
+See the lectures for the example of predicting if a county would vote Obama or Clinton in a past election. 
+
+The basic classification tree algorithm: find the variable and split that best separates the outcomes. Divide the data into two halves (leaves) based on that split (node). Within each split, find the best variable that separates the outcome into even more homogenous groups. Continue to do this until groups are too small or until they are sufficiently pure (homogenous). 
+
+There are several measures of purity/impurity/homogeneity/heterogeneity. Misclassification error is a simple and popular one, and is equal to 1 minus the proportion of the most common class in some leaf (terminal grouping). The Gini index is equal to 1 minus the sum of the squared probabilities of each class in the leaf.
+
+Trees are non-linear models and they automatically make use of the interactions between variables. It is always a model that is built on the relationship between multiple variables. If you have very many variables that you input into the algorithm, it is liable to overfit.  Data transformation may be less important for classification trees than for other algorithms (e.g. monotone transformations don’t matter). Trees can also be used for regression problems (continuous outcomes, not just class labels). 
+
+2. Bagging
+
+Bagging is short for bootstrap aggregating.  The idea is that when you fit complicated models, sometimes if you average them together, you get a smoother model fit that offers a better balance between bias and variance. 
+
+The basic idea is that we resample the cases in your dataset and recalculate the prediction function on each resample. Then you can average the models, or majority vote on their individual predictions, just basically do something to average all of the different predictors together. There exists a proof that shows that the averaged version will have similar bias but lower variability compared to the individual fits. 
+
+See the code for a demonstration of bagged loess. You can also write your own bagging function in caret using the “bag” function. 
+
+3. Random forests
+
+Random forests can be thought of as an extension to bagging for classification trees. We bootstrap samples, and rebuild classification or regression trees on each of those resamples. The only difference is that we also bootstrap the variables at each split, i.e. only a subset of variables is considered at each split. 
+
+The pros of this method is that it is quite accurate, but it can be quite slow, and may be hard to interpret or understand. It can lead to some overfitting and it is hard to pinpoint which trees are leading to that overfitting, which is why it is so important to use cross validation when building random forests.
+
+Once the random forest is built, a new sample we want to classify or predict for may get different predictions in different trees. We basically just want to summarise what all of the trees are saying about a new sample. 
+
+Random forests are one of the top performing algorithms, along with boosting, in any prediction contest. 
+
+
+4. Boosting
+
+Like random forests, boosting is one of the most accurate out of the box classifiers you can use. We take a large number of possibly weak predictors and weight them and add them up. By averaging them together, we get a stronger predictor. 
+
+We start with k classifiers (usually of the same type, e.g. all possible trees) and create a set of weighted classifiers. The goal is minimize error on the training set.  The process is iterative – we calculate weights for the next step based on the errors of the current step by upweighting the importance of incorrect classifications. The most popular boosting algorithm is probably Adaboost. A large subclass of boosting is gradient boosting. 	
+
+One example of a basic boosting algorithm is if we draw a lot of horizontal and vertical lines to try to classify some samples (that aren’t separable linearly). By adding up lots of these, we can actually get a decent classifier.
+
+5. Model based prediction
+
+We assume that the data follow a specific probabilistic model. The pros are that we can take advatange of the data’s structure, for example if it follows a specific distribution, which can offer some computational conveniences. Tends to be accurate on real problems that really do follow the data distributions the underly the probabilistic model. The cons of this approach are that you’re obviously making some sort of assumptions about the data, and if the assumptions/model aren’t correct, you do get reduced accuracy.
+
+Our goal is to build a probabilistic model for the conditional distribution of some outcome variable Y based on the values of some predictors. A typical approach is to apply Bayes Theorem, which forms the foundation for the Naïve Bayes (NB) classifier. In NB, the Bayes Formula takes as input some prior probabilities, which are estimation by some distribution, commonly a Gaussian or Binomial distribution. We estimate the parameters of the distributions from the data. Once we have these parameters of the prior distributions estimated, we can find the probability that the outcome variable Y belongs to any of the possible classes. 
+
+A range of models use this approach, the most popular of which is probably linear discriminant analysis (LDA). A closely related method is quadratic discriminant analysis. See the maths in the lecture for the explanation of the basis of LDA and NB. Outputs decision boundaries, which are used to classify any new samples.
+
