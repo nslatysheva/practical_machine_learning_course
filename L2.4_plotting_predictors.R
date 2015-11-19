@@ -67,3 +67,7 @@ prop.table(t1,1)
 
 # density plots (basically smoothed histograms) are also useful to look at
 qplot(wage, colour=education, data=training, geom="density")
+
+
+
+
