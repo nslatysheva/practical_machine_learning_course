@@ -1,0 +1,75 @@
+Practical machine learning notes - Week 4
+
+Concepts covered this week:
+
+-- 1: Regularized regression
+What is regularized regression
+Collinearity
+Prediction error decomposition
+Model complexity
+Ridge regression
+Coefficient paths
+Lasso regression
+
+-- 2: Combining predictors
+Model stacking
+Model ensembling
+Majority voting
+Combining same vs. different model types
+
+-- 3: Forecasting
+Spurious correlations
+Time series data decomposition
+Moving averages
+Exponential smoothing
+
+-- 4: Unsupervised prediction
+Supervised vs. unsupervised learning
+K-means clustering
+
+
+1. Regularized regression
+
+The basic idea of regularized regression is to fit a straight line through the data as normal, but to penalize or shrink any large regression coefficients. The advantage of this is getting a better bias/variance tradeoff – we might not get strictly as accurate predictions, but they’ll be a lot better from the variance/overfitting point of view. Regularized regression can also help with model selection, for example the lasso technique does feature selection implicitly. The cons of regularized regression is that it may be computationally demanding on large data sets, and in general it doesn’t perform quite as well as random forests and boosting on prediction problems in the wild. And obviously, the limitations of linear models still apply.
+
+One time you would want to use regularized regression is when you have nearly perfectly correlated variables (collinearity) in your data set. The intuition behind regularizing your regression is that you can still get a very good estimate of Y if you just leave out one of these predictors. So the method is a way to simplify your linear model.
+
+Recall that training set error always decreases as you increase the number of predictors (as model complexity increases), but the test set error eventually plateaus and increases as you overfit to the data. So in general, what we should do (and what we’ve been doing so far in the course) is to do the train/test split. 
+
+Further, we can decompose the expected prediction error on new data to: irreducible error, bias^2, and variance. Our goal is to minimize this overall quantity that reflects total error. The irreducible error cannot generally be reduced, but we can trade off bias and variance, which is what regularized regression tries to do well. 
+
+Regularised regression: if regression coefficients are unconstrained, they may explode if we have highly correlated predictors, and hence they are very susceptible to very high variance. As with normal regression, we want to minimize the distance between the true outcome and the predictions, but we add a penalty term that shrinks the Beta coefficients back down if they get too big.
+
+The first approach (ridge regression) used in penalized regression introduces a penalty term that is lambda times the sum of the Betas squared (see maths in the lecture). This essentially requires that some Betas are small. The lambda parameter controls the level of penalty we apply, i.e. how much we shrink the Betas. We can plot coefficient paths, or the values of coefficients as lambda increases. As you increase lambda, all the coefficients get closer to zero. As lambda gets closer to zero, we obtain the normal least squares solution. As lambda tends to infinity, all coefficients go to zero. Picking the value of the parameter can be done via cross-validation to choose the optimal parameter value that leads to the best bias-variance tradeoff.
+
+The lasso is a similar technique, but the penalty term is the sum of the absolute values of the coefficients being less than some cutoff. The effect of this penalty is to shrink the coefficients and forces a number of the coefficients to be exactly zero, hence the connection of the lasso to model selection. 
+
+
+2. Combining predictors
+
+We can combine classifiers by averaging or voting. These classifiers can be very different, e.g. combining a boosting model with random forests with linear regression. In general, combining predictors improves accuracy, but tends to reduce interpretability. Boosting, bagging and random forests are basically variants on this theme of averaging predictors, but in those cases, they are averages of the same class of model (e.g. random forests are ensembles of a lot of trees). To combine different classifiers, model stacking or model ensembling are the way to go.
+
+The Netflix winning model was a combination of 107 different predictors. The Heritage Health prize was also won by ensembling. 
+
+See code for demo of ensembling with caret.
+
+3. Forecasting
+
+Forecasting is making predictions that are depending on time, e.g. stock data. We often see specific pattern types, like long term increases and decreases, seasonal patterns, or periodic patterns. 
+
+Subsampling into training/test sets is more complicated here,  since you have to keep in mind that points are dependent on time. With spatial data, there are similar trends – e.g. there is dependency between nearby observations, and location-specific effects. With both data types, the goal is to predict one or more observations into the future. 
+
+Dangers: spurious correlations abound, e.g. there is a high correlation between the google and solitaire network stock prices. Geography heatmaps are also prone to display spurious correlations that are simply due to population densities. Beware of extrapolation in time series – e.g. plotting race times from the Olympics can’t be extrapolated too far into the future, have to be careful it makes sense.
+
+See code for forecasting demo.
+
+4. Unsupervised prediction
+
+In the examples we’ve seen before, we know what the labels for prediction are. Sometimes we don’t know what the labels are and we have to find out what they might be. One way to find out what they could be is to do clustering, name the clusters, and build a predictor for the clusters. On a new data set, we can then try to predict the clusters. 
+
+See R code for demo.
+
+Unsupervised prediction adds a few layers of difficulty to the problem – clustering is not trivial, naming clusters in a meaningful way is not trivial, etc. 
+
+
+
